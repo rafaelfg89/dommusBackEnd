@@ -1,4 +1,5 @@
 <?php namespace App\Http\Controllers;
+use App\Models\Log_reajuste;
 use Illuminate\Http\Request;
 use App\Models\Unidade;
 
@@ -48,14 +49,26 @@ class UnidadeController extends Controller {
         try{
             $unidade =  Unidade::find($id);
 
-            $unidade->id_bloco           = !$request->id_bloco ? $unidade->nome : $request->id_bloco;
-            $unidade->valor              = !$request->valor ? $unidade->localizacao : $request->valor;
-            $unidade->id_status          = !$request->id_status ? $unidade->prev_entrega : $request->id_status;
+            if($request->valor){
+                $log_reaj = new Log_reajuste();
+
+                $log_reaj->id_unidade        = $id;
+                $log_reaj->valor_reajuste    = $request->valor;
+                $log_reaj->valor_antigo      = $unidade->valor;
+
+                $log_reaj->percentual   = (($request->valor / $unidade->valor) * 100) - 100;
+                $log_reaj->save();
+            };
+
+            $unidade->id_bloco           = !$request->id_bloco ? $unidade->id_bloco : $request->id_bloco;
+            $unidade->valor              = !$request->valor ? $unidade->valor : $request->valor;
+            $unidade->id_status          = !$request->id_status ? $unidade->id_status : $request->id_status;
 
             $unidade->save();
-
             return \response($unidade);
+
         }catch (\Exception $ex){
+
             return  \response()->json($ex);
         }
     }

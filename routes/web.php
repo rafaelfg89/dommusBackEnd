@@ -19,9 +19,10 @@ $router->get('/', function () use ($router) {
 $router->group(['prefix' => 'status'], function () use ($router) {
     $router->get('/', 'StatusController@index');
     $router->get('/{id}', 'StatusController@show');
-    $router->post('/', 'StatusController@store');
-    $router->put('/{id}', 'StatusController@update');
-    $router->delete('/{id}', 'StatusController@destroy');
+});
+$router->group(['prefix' => 'log_reajuste'], function () use ($router) {
+    $router->get('/', 'Log_reajusteController@index');
+    $router->get('/{id}', 'Log_reajusteController@show');
 });
 $router->group(['prefix' => 'blocos'], function () use ($router) {
     $router->get('/', 'BlocosController@index');

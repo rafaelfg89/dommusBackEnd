@@ -15,10 +15,35 @@ class EmpreendimentosController extends Controller {
     }
 
     public function show($id) {
+//        try {
+//            $empreendimentos = Empreendimentos::where('id', $id)->get();
+//            return \response($empreendimentos);
+//        }catch (\Exception $ex){
+//            return \response()->json($ex);
+//        }
+
         try {
-            $empreendimentos = Empreendimentos::where('id', $id)->get();
+            $empreendimentos = app('db')->select("SELECT
+	 emp.id AS id,
+	 emp.nome AS empreendimento,
+	 emp.localizacao AS localizacao,
+	 emp.prev_entrega AS prev_entrega,
+	 COUNT(uni.valor) AS contidade_unidade,
+	 sum(uni.valor) AS valor_unidade_total,
+	 stat.descrição AS status
+
+	 FROM empreendimentos emp
+	 left JOIN blocos bloc ON emp.id = bloc.id_empreendimentos
+	 left JOIN unidade uni ON bloc.id = uni.id_bloco
+	 INNER JOIN status stat ON uni.id_status = stat.id
+	 WHERE emp.id = ".$id."
+
+	 GROUP BY emp.id, emp.localizacao, emp.prev_entrega, emp.nome, stat.descrição
+
+	");
+            ;
             return \response($empreendimentos);
-    }catch (\Exception $ex){
+        }catch (\Exception $ex){
             return \response()->json($ex);
         }
     }
