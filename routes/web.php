@@ -33,6 +33,7 @@ $router->group(['prefix' => 'blocos'], function () use ($router) {
 });
 $router->group(['prefix' => 'unidade'], function () use ($router) {
     $router->get('/', 'UnidadeController@index');
+    $router->get('/empreendimento/{id}', 'UnidadeController@getUnidadeByEmpreendimento');
     $router->get('/{id}', 'UnidadeController@show');
     $router->post('/', 'UnidadeController@store');
     $router->put('/{id}', 'UnidadeController@update');

@@ -13,6 +13,22 @@ class UnidadeController extends Controller {
         }
     }
 
+    public function getUnidadeByEmpreendimento($id) {
+        try{
+            $unidade = app('db')->select('	SELECT
+	uni.id, uni.id_bloco, uni.valor, stat.`descrição`
+	 FROM empreendimentos emp
+	 left JOIN blocos bloc ON emp.id = bloc.id_empreendimentos
+	 left JOIN unidade uni ON bloc.id = uni.id_bloco
+	 INNER JOIN status stat ON uni.id_status = stat.id
+	 WHERE emp.id = '.$id
+	 );
+            return \response($unidade);
+        }catch (\Exception $ex){
+            return \response($ex);
+        }
+    }
+
     public function show($id) {
         try {
             $unidade = Unidade::where('id', $id)->get();
