@@ -7,10 +7,8 @@ use App\Models\Unidade;
 
 class BlocosController extends Controller {
 
-
     public function index() {
         $blocos = Blocos::all();
-       //$blocos = app('db')->select("select * from blocos") ;
         return \response($blocos);
     }
 
@@ -18,21 +16,21 @@ class BlocosController extends Controller {
 
         $blocos = Blocos::where('id', $id)->get();
         if(is_null($blocos)){
-            return $this->respond(Response::HTTP_NOT_FOUND);
+            return \response(Response::HTTP_NOT_FOUND);
         }
         return \response($blocos);
     }
 
     public function store(Request $request){
         try{
-            $erros = array();
+
             $blocos = new Blocos();
 
-            if(!$request->id_empreendimentos || $request->id_empreendimentos == '') array_push($erros,"Empreendimento obrigatório para a criação de um bloco.");
+            $this->validate($request,[
+                'id_empreendimentos' => 'required'
+            ]);
 
-            if(count($erros) > 0) return \response()->json($erros);
-
-            $blocos->id_empreendimentos   = $request->id_empreendimentos;
+            $blocos->fill($request->toArray());
 
             $blocos->save();
 
@@ -46,7 +44,11 @@ class BlocosController extends Controller {
         try{
             $blocos =  Blocos::find($id);
 
-            $blocos->id_empreendimentos  = !$request->id_empreendimentos ? $blocos->nome : $request->id_empreendimentos;
+            $this->validate($request,[
+                "id_empreendimentos" => "required"
+            ]);
+
+            $blocos->fill($request->toArray());
 
             $blocos->save();
 

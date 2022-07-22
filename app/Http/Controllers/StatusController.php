@@ -14,7 +14,7 @@ class StatusController extends Controller {
 
     public function show($id) {
         try{
-            $status = app('db')->select("select * from status where id =".$id);
+            $status = Status::where('id', $id)->get();
             return \response($status);
         }catch (\Exception $ex){
             return \response($ex);

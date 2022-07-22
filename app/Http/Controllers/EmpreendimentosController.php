@@ -3,6 +3,7 @@ use App\Models\Empreendimentos;
 use App\Models\Blocos;
 use App\Models\Unidade;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EmpreendimentosController extends Controller {
     public function index() {
@@ -15,33 +16,18 @@ class EmpreendimentosController extends Controller {
     }
 
     public function show($id) {
-//        try {
-//            $empreendimentos = Empreendimentos::where('id', $id)->get();
-//            return \response($empreendimentos);
-//        }catch (\Exception $ex){
-//            return \response()->json($ex);
-//        }
-
         try {
-            $empreendimentos = app('db')->select("SELECT
-	 emp.id AS id,
-	 emp.nome AS empreendimento,
-	 emp.localizacao AS localizacao,
-	 emp.prev_entrega AS prev_entrega,
-	 COUNT(uni.valor) AS contidade_unidade,
-	 sum(uni.valor) AS valor_unidade_total,
-	 stat.descrição AS status
+            $empreendimentos = Empreendimentos::
+                where('empreendimentos.id',$id)
+                ->leftJoin('blocos','blocos.id','=','empreendimentos.id')
+                ->leftJoin('unidade','unidade.id_bloco','=','blocos.id')
+                ->join('status','status.id','=','unidade.id_status')
+                ->groupBy('empreendimentos.id','empreendimentos.localizacao','empreendimentos.prev_entrega','empreendimentos.nome','status.descrição')
+                ->select('empreendimentos.id','empreendimentos.localizacao','empreendimentos.prev_entrega','empreendimentos.nome','status.descrição',
+                    DB::raw('COUNT(unidade.valor) as quantidade_unidade'),
+                    DB::raw('SUM(unidade.valor) as valor_unidade_total'))
+                ->get();
 
-	 FROM empreendimentos emp
-	 left JOIN blocos bloc ON emp.id = bloc.id_empreendimentos
-	 left JOIN unidade uni ON bloc.id = uni.id_bloco
-	 INNER JOIN status stat ON uni.id_status = stat.id
-	 WHERE emp.id = ".$id."
-
-	 GROUP BY emp.id, emp.localizacao, emp.prev_entrega, emp.nome, stat.descrição
-
-	");
-            ;
             return \response($empreendimentos);
         }catch (\Exception $ex){
             return \response()->json($ex);
@@ -50,21 +36,17 @@ class EmpreendimentosController extends Controller {
 
     public function store(Request $request){
         try{
-            $erros = array();
             $empreendimento = new Empreendimentos();
 
-            if(!$request->nome || $request->nome == '') array_push($erros,"Nome obrigatório para a criação de um empreendimento.");
-            if(!$request->localizacao || $request->localizacao == '') array_push($erros,"Localizacao obrigatório para a criação de um empreendimento.");
-            if(!$request->prev_entrega || $request->prev_entrega == '') array_push($erros,"Previsão de entrega obrigatório para a criação de um empreendimento.");
+            $this->validate($request,[
+                'nome'          => 'required',
+                'localizacao'   => 'required',
+                'prev_entrega'  => 'required'
+            ]);
 
-            if(count($erros) > 0) return \response()->json($erros);
-
-            $empreendimento->nome           = $request->nome;
-            $empreendimento->localizacao    = $request->localizacao;
-            $empreendimento->prev_entrega   = $request->prev_entrega;
+            $empreendimento->fill($request->toArray());
 
             $empreendimento->save();
-
             return \response($empreendimento);
         }catch (\Exception $ex){
             return  \response()->json($ex);
@@ -75,9 +57,13 @@ class EmpreendimentosController extends Controller {
         try{
             $empreendimento =  Empreendimentos::find($id);
 
-            $empreendimento->nome           = !$request->nome ? $empreendimento->nome : $request->nome;
-            $empreendimento->localizacao    = !$request->localizacao ? $empreendimento->localizacao : $request->localizacao;
-            $empreendimento->prev_entrega   = !$request->prev_entrega ? $empreendimento->prev_entrega : $request->prev_entrega;
+            $this->validate($request,[
+                'nome'          => 'required',
+                'localizacao'   => 'required',
+                'prev_entrega'  => 'required'
+            ]);
+
+            $empreendimento->fill($request->toArray());
 
             $empreendimento->save();
 

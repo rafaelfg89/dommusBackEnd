@@ -13,6 +13,6 @@ class Empreendimentos extends Model
     public static $rules = [
         "nome" => "required",
         "localizacao" => "required",
-        "prev_entrega" => "required",
+        "prev_entrega" => "required"
     ];
 }
