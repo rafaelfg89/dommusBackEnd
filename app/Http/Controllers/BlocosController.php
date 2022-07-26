@@ -21,6 +21,20 @@ class BlocosController extends Controller {
         return \response($blocos);
     }
 
+    public function getBlocosByEmpreendimento($id) {
+        try{
+            $unidade = Empreendimentos::
+            where('empreendimentos.id', $id)
+                ->leftJoin('blocos','empreendimentos.id','=','blocos.id_empreendimentos')
+                ->select('blocos.id')
+                ->get();
+
+            return \response($unidade);
+        }catch (\Exception $ex){
+            return \response($ex);
+        }
+    }
+
     public function store(Request $request){
         try{
 

@@ -3,6 +3,7 @@ use App\Models\Empreendimentos;
 use App\Models\Log_reajuste;
 use Illuminate\Http\Request;
 use App\Models\Unidade;
+use Illuminate\Support\Facades\DB;
 
 class UnidadeController extends Controller {
     public function index() {
@@ -21,6 +22,7 @@ class UnidadeController extends Controller {
                 ->leftJoin('blocos','empreendimentos.id','=','blocos.id_empreendimentos')
                 ->leftJoin('unidade','blocos.id','=','unidade.id_bloco')
                 ->join('status','unidade.id_status',"=","status.id")
+                ->select('unidade.id','unidade.id_bloco','unidade.valor','status.descrição')
                 ->get();
 
             return \response($unidade);
@@ -83,8 +85,10 @@ class UnidadeController extends Controller {
 
     public function destroy($id){
         try{
-            $unidade = Unidade::find($id);
+            $unidade = Unidade::where('id', $id);
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
             $unidade->delete();
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
             return \response()->json('Unidade excluída com sucesso!');
         }catch (\Exception $ex){

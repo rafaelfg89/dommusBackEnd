@@ -19,7 +19,7 @@ class EmpreendimentosController extends Controller {
         try {
             $empreendimentos = Empreendimentos::
                 where('empreendimentos.id',$id)
-                ->leftJoin('blocos','blocos.id','=','empreendimentos.id')
+                ->leftJoin('blocos','blocos.id_empreendimentos','=','empreendimentos.id')
                 ->leftJoin('unidade','unidade.id_bloco','=','blocos.id')
                 ->join('status','status.id','=','unidade.id_status')
                 ->groupBy('empreendimentos.id','empreendimentos.localizacao','empreendimentos.prev_entrega','empreendimentos.nome','status.descrição')

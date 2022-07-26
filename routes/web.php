@@ -27,6 +27,7 @@ $router->group(['prefix' => 'log_reajuste'], function () use ($router) {
 $router->group(['prefix' => 'blocos'], function () use ($router) {
     $router->get('/', 'BlocosController@index');
     $router->get('/{id}', 'BlocosController@show');
+    $router->get('/getblocos/{id}', 'BlocosController@getBlocosByEmpreendimento');
     $router->post('/', 'BlocosController@store');
     $router->put('/{id}', 'BlocosController@update');
     $router->delete('/{id}', 'BlocosController@destroy');
